@@ -1,19 +1,18 @@
 # 🚆 Cercanías Cádiz — PWA
 
-Aplicación web progresiva (PWA) para ver los **trenes de Cercanías de Cádiz en tiempo real**, instalable desde el navegador.
+Aplicación web progresiva (PWA) instalable para ver los **horarios de Cercanías de Cádiz** (línea C1 y otras) con mapa de la red.
 
-![preview](https://img.shields.io/badge/Estado-Live-22c55e?style=flat-square) ![pwa](https://img.shields.io/badge/PWA-Instalable-dc2626?style=flat-square)
+![preview](https://img.shields.io/badge/Estado-Live-22c55e?style=flat-square) ![pwa](https://img.shields.io/badge/PWA-Instalable-dc2626?style=flat-square) ![gtfs](https://img.shields.io/badge/Datos-GTFS%20Renfe-0284c7?style=flat-square)
 
 ## ✨ Funcionalidades
 
-- 🗺️ **Mapa interactivo** con todos los trenes en circulación (Leaflet + OpenStreetMap)
-- 📋 **Lista ordenable** de trenes con estado en tiempo real
-- 🔍 **Filtro por línea** (C1, C2, C3…) y búsqueda por label/trip
-- 📌 **Estaciones de la línea C1 Cádiz–Sevilla** marcadas en el mapa
-- 🔄 **Actualización automática** cada 30 segundos sin recargar
-- 📲 **Instalable como app** en Android, iOS y escritorio
-- ⚡ **Service Worker** — funciona offline con datos en caché
-- 🌙 **Tema oscuro** nativo
+- 🗓️ **Horarios reales** entre cualquier par de estaciones de Cercanías Cádiz
+- 🔍 Selector de **origen, destino y fecha**
+- ⏰ Muestra hora de salida, llegada y duración del trayecto
+- 🗺️ **Mapa** con las estaciones de la línea C1 (Cádiz → Sevilla)
+- 📲 **Instalable como app** en Android, iOS y escritorio (PWA)
+- ⚡ **Service Worker** para caché offline
+- 🌙 Tema oscuro nativo
 
 ## 🚀 Demo en vivo
 
@@ -21,46 +20,56 @@ Aplicación web progresiva (PWA) para ver los **trenes de Cercanías de Cádiz e
 
 ## 📡 Fuente de datos
 
-Usa la API **GTFS Realtime** pública de Renfe:
-```
-https://gtfsrt.renfe.com/vehicle_positions.json
-```
-Accedida desde el cliente via proxy CORS `allorigins.win` (sin backend necesario).
+Utiliza el **GTFS estático de Cercanías** publicado por Renfe/Fomento, tal y como lo hace el proyecto [gerardcl/renfe-cli](https://github.com/gerardcl/renfe-cli):
 
-> **Nota**: El proxy público puede tener latencia ocasional. Si lo despliegas en tu propio servidor, reemplaza `API_URL` en `app.js` con tu propio endpoint proxy.
+```
+https://ssl.renfe.com/ftransit/Fichero_CER_FOMENTO/fomento_transit.zip
+```
+
+El ZIP se descarga y parsea directamente en el navegador con [JSZip](https://stuk.github.io/jszip/). Contiene:
+
+| Archivo | Contenido |
+|---|---|
+| `stops.txt` | Estaciones y coordenadas |
+| `trips.txt` | Expediciones |
+| `stop_times.txt` | Horarios por parada |
+| `calendar.txt` | Servicios activos por día de semana |
+| `calendar_dates.txt` | Excepciones (festivos, etc.) |
+| `routes.txt` | Líneas (C1, C2…) |
+
+> El acceso se hace via proxy CORS `allorigins.win` al ser una PWA estática sin backend.
 
 ## ⚙️ Deploy en GitHub Pages
 
 1. Ve a **Settings → Pages** del repositorio
-2. Source: **Deploy from branch → main / (root)**
-3. Guarda y espera ~1 min
-4. La app estará disponible en `https://javirerffggg.github.io/cercanias-cadiz/`
+2. Source: **GitHub Actions**
+3. El workflow `.github/workflows/pages.yml` lo despliega automáticamente en cada push a `main`
+4. URL: `https://javirerffggg.github.io/cercanias-cadiz/`
 
 ## 🏗️ Estructura
 
 ```
 cercanias-cadiz/
-├── index.html      # Shell de la app + estilos
-├── app.js          # Lógica: mapa, lista, fetch GTFS-RT, PWA
-├── sw.js           # Service Worker (caché + offline)
-├── manifest.json   # Manifiesto PWA
+├── index.html              # Shell + estilos + formulario de búsqueda
+├── app.js                  # Lógica GTFS: descarga, parseo, horarios, mapa
+├── sw.js                   # Service Worker
+├── manifest.json           # Manifiesto PWA
 ├── icons/
-│   ├── icon-192.png
-│   └── icon-512.png
-└── README.md
+│   └── icon-192.png
+└── .github/workflows/
+    └── pages.yml
 ```
 
 ## 🛠️ Desarrollo local
 
 ```bash
-# Cualquier servidor estático sirve
 npx serve .
 # o
 python3 -m http.server 8080
 ```
 
-Luego abre `http://localhost:8080`.
-
 ## 🙏 Créditos
 
-Basado en la idea de [guardovich/renfe-realtime-map](https://github.com/guardovich/renfe-realtime-map). Reimplementado como PWA estática sin backend.
+- Inspirado en [guardovich/renfe-realtime-map](https://github.com/guardovich/renfe-realtime-map)
+- API/datos: método de [gerardcl/renfe-cli](https://github.com/gerardcl/renfe-cli)
+- Mapas: [Leaflet](https://leafletjs.com) + [OpenStreetMap](https://openstreetmap.org)
